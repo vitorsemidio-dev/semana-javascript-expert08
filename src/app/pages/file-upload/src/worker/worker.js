@@ -1,6 +1,6 @@
-// import VideoProcessor from './video-processor.js';
+import VideoProcessor from './video-processor.js';
 
-// const videoProcessor = new VideoProcessor();
+const videoProcessor = new VideoProcessor();
 
 const qvgaContaints = {
   width: 320,
@@ -34,10 +34,10 @@ const encoderConfig = {
 onmessage = async ({ data }) => {
   console.log('Iniciando Worker', data);
 
-  // await videoProcessor.start({
-  //   file: data.file,
-  //   encoderConfig,
-  // });
+  await videoProcessor.start({
+    file: data.file,
+    encoderConfig,
+  });
 
   self.postMessage({
     status: 'done',

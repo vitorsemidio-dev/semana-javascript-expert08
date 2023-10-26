@@ -6,7 +6,9 @@ const clock = new Clock();
 const view = new View();
 let took = '';
 
-const worker = new Worker(new URL('./worker/worker.js', import.meta.url));
+const worker = new Worker(new URL('./worker/worker.js', import.meta.url), {
+  type: 'module',
+});
 
 worker.onmessage = ({ data }) => {
   if (data.status !== 'done') return;
