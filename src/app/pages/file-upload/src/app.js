@@ -1,4 +1,5 @@
 import Clock from './deps/clock.js';
+import { fakeFetch } from './fake-fetch.js';
 import View from './view.js';
 
 const clock = new Clock();
@@ -15,3 +16,5 @@ view.configureOnFileChange((file) => {
     view.updateElapsedTime(`Process took ${took.replace('ago', '')}`);
   }, 5000);
 });
+
+fakeFetch();
