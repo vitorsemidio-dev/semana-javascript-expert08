@@ -10,6 +10,10 @@ const worker = new Worker(new URL('./worker/worker.js', import.meta.url), {
   type: 'module',
 });
 
+worker.onerror = (error) => {
+  console.error(error);
+};
+
 worker.onmessage = ({ data }) => {
   if (data.status !== 'done') return;
   console.log('Worker concluído');
