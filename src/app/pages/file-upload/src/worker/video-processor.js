@@ -10,25 +10,33 @@ export default class VideoProcessor {
     this.#mp4Demuxer = mp4Demuxer;
   }
 
-  async mp4Decoder(encoderConfig, stream) {
-    const decoder = new VideoDecoder({
-      output(frame) {
-        // debugger;
-      },
-      error(e) {
-        console.error('error at mp4Decoder', e);
-      },
-    });
-    this.#mp4Demuxer.run(stream, {
-      onConfig: (config) => {
-        decoder.configure(config);
-      },
+  mp4Decoder(encoderConfig, stream) {
+    return new ReadableStream({
+      start: async (controller) => {
+        const decoder = new VideoDecoder({
+          /**
+           * @param {VideoFrame} frame
+           */
+          output(frame) {
+            controller.enqueue(frame);
+          },
+          error(e) {
+            console.error('error at mp4Decoder', e);
+            controller.error(e);
+          },
+        });
+        this.#mp4Demuxer.run(stream, {
+          onConfig: (config) => {
+            decoder.configure(config);
+          },
 
-      /**
-       * @param {EncodedVideoChunk} chunk
-       */
-      onChunk: (chunk) => {
-        decoder.decode(chunk);
+          /**
+           * @param {EncodedVideoChunk} chunk
+           */
+          onChunk: (chunk) => {
+            decoder.decode(chunk);
+          },
+        });
       },
     });
   }
@@ -36,7 +44,11 @@ export default class VideoProcessor {
   async start({ file, encoderConfig, sendMessage }) {
     const stream = file.stream();
     const filename = getFilename(file.name);
-    await this.mp4Decoder(encoderConfig, stream);
+    await this.mp4Decoder(encoderConfig, stream).pipeTo(
+      new WritableStream({
+        async write(frame) {},
+      }),
+    );
   }
 }
 
