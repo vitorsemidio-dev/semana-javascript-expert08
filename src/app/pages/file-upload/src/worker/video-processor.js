@@ -25,28 +25,36 @@ export default class VideoProcessor {
             controller.error(e);
           },
         });
-        this.#mp4Demuxer.run(stream, {
-          onConfig: (config) => {
-            decoder.configure(config);
-          },
+        return this.#mp4Demuxer
+          .run(stream, {
+            onConfig: (config) => {
+              decoder.configure(config);
+            },
 
-          /**
-           * @param {EncodedVideoChunk} chunk
-           */
-          onChunk: (chunk) => {
-            decoder.decode(chunk);
-          },
-        });
+            /**
+             * @param {EncodedVideoChunk} chunk
+             */
+            onChunk: (chunk) => {
+              decoder.decode(chunk);
+            },
+          })
+          .then(() => {
+            setTimeout(() => {
+              controller.close();
+            }, 3000);
+          });
       },
     });
   }
 
-  async start({ file, encoderConfig, sendMessage }) {
+  async start({ file, encoderConfig, renderFrame, sendMessage }) {
     const stream = file.stream();
     const filename = getFilename(file.name);
     await this.mp4Decoder(encoderConfig, stream).pipeTo(
       new WritableStream({
-        async write(frame) {},
+        async write(frame) {
+          renderFrame(frame);
+        },
       }),
     );
   }
