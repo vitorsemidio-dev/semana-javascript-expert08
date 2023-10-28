@@ -62,16 +62,15 @@ export default class View {
 
   downloadBlobAsFile(buffers, filename) {
     debugger;
-    return;
-    // const blob = new Blob(buffers, { type: 'video/webm' });
-    // const blobUrl = URL.createObjectURL(blob);
+    const blob = new Blob(buffers, { type: 'video/webm' });
+    const blobUrl = URL.createObjectURL(blob);
 
-    // const a = document.createElement('a');
-    // a.href = blobUrl;
-    // a.download = filename;
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
 
-    // a.click();
+    a.click();
 
-    // URL.revokeObjectURL(blobUrl);
+    URL.revokeObjectURL(blobUrl);
   }
 }
