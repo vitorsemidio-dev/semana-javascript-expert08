@@ -20,7 +20,7 @@ worker.onmessage = ({ data }) => {
   clock.stop();
   view.updateElapsedTime(`Process took ${took.replace('ago', '')}`);
   console.log('recebi no processo do app.js', data);
-  if (data.buffers) {
+  if (data.buffers?.length) {
     view.downloadBlobAsFile(data.buffers, data.filename);
   }
 };

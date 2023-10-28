@@ -158,7 +158,7 @@ export default class VideoProcessor {
     };
   }
 
-  saveToMemoryBuffer(sendMessage, filename) {
+  downloadVideo114pFromBuffer(sendMessage, filename) {
     return new TransformStream({
       transform: ({ data, position }, controller) => {
         this.#buffers.push(data);
@@ -174,6 +174,19 @@ export default class VideoProcessor {
     });
   }
 
+  processFinish(sendMessage) {
+    return new TransformStream({
+      transform: ({ data }, controller) => {
+        controller.enqueue(data);
+      },
+      flush: () => {
+        sendMessage({
+          status: 'done',
+        });
+      },
+    });
+  }
+
   async start({ file, encoderConfig, renderFrame, sendMessage }) {
     const stream = file.stream();
     const filename = getFilename(file.name);
@@ -181,7 +194,8 @@ export default class VideoProcessor {
       .pipeThrough(this.enconde144p(encoderConfig))
       .pipeThrough(this.renderDecodedFramesAndGetEncodedChunks(renderFrame))
       .pipeThrough(this.transformIntoWebM())
-      .pipeThrough(this.saveToMemoryBuffer(sendMessage, filename))
+      .pipeThrough(this.processFinish(sendMessage))
+      // .pipeThrough(this.downloadVideo114pFromBuffer(sendMessage, filename))
       .pipeTo(
         new WritableStream({
           async write(frame) {

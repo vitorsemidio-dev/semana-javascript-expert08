@@ -61,7 +61,6 @@ export default class View {
   }
 
   downloadBlobAsFile(buffers, filename) {
-    debugger;
     const blob = new Blob(buffers, { type: 'video/webm' });
     const blobUrl = URL.createObjectURL(blob);
 
