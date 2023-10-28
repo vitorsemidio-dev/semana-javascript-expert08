@@ -1,6 +1,7 @@
 export default class VideoProcessor {
   #mp4Demuxer;
   #webMWriter;
+  #buffers = [];
 
   /**
    *
@@ -157,6 +158,21 @@ export default class VideoProcessor {
     };
   }
 
+  saveToMemoryBuffer(sendMessage) {
+    return new TransformStream({
+      transform: ({ data, position }, controller) => {
+        this.#buffers.push(data);
+        controller.enqueue(data);
+      },
+      flush: () => {
+        sendMessage({
+          status: 'done',
+          buffers: this.#buffers,
+        });
+      },
+    });
+  }
+
   async start({ file, encoderConfig, renderFrame, sendMessage }) {
     const stream = file.stream();
     const filename = getFilename(file.name);
@@ -164,10 +180,11 @@ export default class VideoProcessor {
       .pipeThrough(this.enconde144p(encoderConfig))
       .pipeThrough(this.renderDecodedFramesAndGetEncodedChunks(renderFrame))
       .pipeThrough(this.transformIntoWebM())
+      .pipeThrough(this.saveToMemoryBuffer(sendMessage))
       .pipeTo(
         new WritableStream({
           async write(frame) {
-            debugger;
+            // debugger;
             // renderFrame(frame);
           },
         }),
