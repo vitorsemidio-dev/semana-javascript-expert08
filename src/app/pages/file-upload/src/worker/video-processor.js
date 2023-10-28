@@ -158,7 +158,7 @@ export default class VideoProcessor {
     };
   }
 
-  saveToMemoryBuffer(sendMessage) {
+  saveToMemoryBuffer(sendMessage, filename) {
     return new TransformStream({
       transform: ({ data, position }, controller) => {
         this.#buffers.push(data);
@@ -168,6 +168,7 @@ export default class VideoProcessor {
         sendMessage({
           status: 'done',
           buffers: this.#buffers,
+          filename: filename.concat('-144p.webm'),
         });
       },
     });
@@ -180,7 +181,7 @@ export default class VideoProcessor {
       .pipeThrough(this.enconde144p(encoderConfig))
       .pipeThrough(this.renderDecodedFramesAndGetEncodedChunks(renderFrame))
       .pipeThrough(this.transformIntoWebM())
-      .pipeThrough(this.saveToMemoryBuffer(sendMessage))
+      .pipeThrough(this.saveToMemoryBuffer(sendMessage, filename))
       .pipeTo(
         new WritableStream({
           async write(frame) {

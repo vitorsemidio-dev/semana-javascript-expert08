@@ -59,9 +59,9 @@ onmessage = async ({ data }) => {
     },
   });
 
-  self.postMessage({
-    status: 'done',
-  });
+  // self.postMessage({
+  //   status: 'done',
+  // });
 
   // troll
   // while (true) {}
