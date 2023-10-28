@@ -21,6 +21,8 @@ export default class CanvasRenderer {
     console.log('draw');
     const { displayHeight, displayWidth } = frame;
 
+    this.#canvas.width = displayWidth;
+    this.#canvas.height = displayHeight;
     this.#ctx.drawImage(frame, 0, 0, displayWidth, displayHeight);
 
     frame.close();
