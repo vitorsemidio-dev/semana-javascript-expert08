@@ -1,18 +1,14 @@
+import WebMWriter from './../deps/webm-writer2.js';
 import CanvasRenderer from './canvasRenderer.js';
 import MP4Demuxer from './mp4Demuxer.js';
 import VideoProcessor from './video-processor.js';
 
-const mp4Demuxer = new MP4Demuxer();
-const videoProcessor = new VideoProcessor({
-  mp4Demuxer,
-});
-
-const qvgaContaints = {
+const qvgaConstraints = {
   width: 320,
   height: 240,
 };
 
-const vgaContaints = {
+const vgaConstraints = {
   width: 640,
   height: 480,
 };
@@ -23,7 +19,7 @@ const hdContains = {
 };
 
 const encoderConfig = {
-  ...qvgaContaints,
+  ...qvgaConstraints,
   bitrate: 10e6,
   // ? WebM container format
   codec: 'vp09.00.10.08',
@@ -35,6 +31,21 @@ const encoderConfig = {
   // hardwareAcceleration: 'prefer-hardware',
   // avc: { format: 'annexb' },
 };
+
+const webmWriterConfig = {
+  // ...qvgaConstraints,
+  codec: 'VP9',
+  width: encoderConfig.width,
+  height: encoderConfig.height,
+  bitrate: encoderConfig.bitrate,
+};
+
+const mp4Demuxer = new MP4Demuxer();
+const videoProcessor = new VideoProcessor({
+  mp4Demuxer,
+
+  webMWriter: new WebMWriter(webmWriterConfig),
+});
 
 onmessage = async ({ data }) => {
   console.log('Iniciando Worker', data);
