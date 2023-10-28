@@ -143,6 +143,40 @@ export default class VideoProcessor {
     });
   }
 
+  upload(filename, resolution, type) {
+    const chunks = [];
+    let byteCount = 0;
+    const triggerUpload = async (chunks) => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+
+      // fazer upload
+
+      // vai remover todos os elementos
+      chunks.length = 0;
+      byteCount = 0;
+    };
+
+    return new WritableStream({
+      /**
+       *
+       * @param {object} options
+       * @param {Uint8Array} options.data
+       */
+      async write({ data }) {
+        chunks.push(data);
+        byteCount += data.byteLength;
+        // se for menor que 10mb não faz upload!
+        if (byteCount <= 10e6) return;
+        await triggerUpload(chunks);
+        // renderFrame(frame)
+      },
+      async close() {
+        if (!chunks.length) return;
+        await triggerUpload(chunks);
+      },
+    });
+  }
+
   transformIntoWebM() {
     const writable = new WritableStream({
       write: (chunk) => {
@@ -180,6 +214,7 @@ export default class VideoProcessor {
         controller.enqueue(data);
       },
       flush: () => {
+        debugger;
         sendMessage({
           status: 'done',
         });
@@ -193,7 +228,7 @@ export default class VideoProcessor {
     await this.mp4Decoder(encoderConfig, stream)
       .pipeThrough(this.enconde144p(encoderConfig))
       .pipeThrough(this.renderDecodedFramesAndGetEncodedChunks(renderFrame))
-      .pipeThrough(this.transformIntoWebM())
+      // .pipeThrough(this.transformIntoWebM())
       .pipeThrough(this.processFinish(sendMessage))
       // .pipeThrough(this.downloadVideo114pFromBuffer(sendMessage, filename))
       .pipeTo(
